@@ -14,24 +14,26 @@ function svgCircle(options) {
     o = options || {},
     cx = o.cx || 50,
     cy = o.cy || 50,
-    r = o.r || 40,
-    fill = o.fill || 'transparent',  
-    stroke = o.stroke || '#fff';
+    r = o.r || 40;
 
   c.setAttributeNS(null, 'cx', cx);
   c.setAttributeNS(null, 'cy', cy);
   c.setAttributeNS(null, 'r', r);
-  c.setAttributeNS(null, 'fill', fill);
-  c.setAttributeNS(null, 'stroke', stroke);
+
   return c;
 }
 
 function svgDashedCircle(options) {
-  var c = svgCircle(options);
+  var c = svgCircle(options),
+    o = options || {},
+    stroke = o.stroke || '#fff';
 
+  c.setAttributeNS(null, 'stroke', stroke);
+  c.setAttributeNS(null, 'fill', 'transparent');
   c.setAttributeNS(null, 'stroke-dasharray', '5,10');
   c.setAttributeNS(null, 'stroke-width', 1);
   c.setAttributeNS(null, 'class', 'persist');
+
   return c;
 }
 
@@ -41,6 +43,7 @@ function svgPoint(options){
     r = o.r || 5;
 
   p.setAttributeNS(null, 'r', r);
+
   return p;
 }
 
@@ -49,9 +52,11 @@ function svgPoints(coords, options){
     o = options || {},
     fill = o.fill || 'transparent';
 
+  g.setAttributeNS(null, 'fill', fill);
   coords.forEach(function(c){
-    g.appendChild(svgPoint({cx: c.x, cy: c.y, fill: fill}));
+    g.appendChild(svgPoint({cx: c.x, cy: c.y}));
   });
+
   return g;
 }
 
@@ -74,13 +79,15 @@ function getPointsOnCircumference(n, cx, cy, radius) {
 (function() {
 
   function refreshPoints(n, e, cfg){
-
+    
     while (e.firstChild) {
       e.removeChild(e.firstChild);
     }
     
-    e.appendChild(svgDashedCircle({cx: cfg.cx, cy: cfg.cy, r: cfg.r}));
-    e.appendChild(svgPoints(getPointsOnCircumference(n, cfg.cx, cfg.cy, cfg.r), {fill: '#fff'}));
+    e.appendChild(svgDashedCircle({cx: cfg.cx, cy: cfg.cy, r: cfg.r1}));
+    e.appendChild(svgPoints(getPointsOnCircumference(n, cfg.cx, cfg.cy, cfg.r1), {fill: '#fff'}));
+
+    e.appendChild(svgDashedCircle({cx: cfg.cx, cy: cfg.cy, r: cfg.r2, stroke: 'red'}));    e.appendChild(svgPoints(getPointsOnCircumference(n, cfg.cx, cfg.cy, cfg.r2), {fill: 'red'}));
   }
 
   var h = 500,
@@ -90,7 +97,8 @@ function getPointsOnCircumference(n, cx, cy, radius) {
         w: w,
         cx: w / 2,
         cy: h / 2,
-        r: (h < w) ? h * 0.4 : w * 0.4
+        r1: (h < w) ? h * 0.4 : w * 0.4,
+        r2: (h < w) ? h * 0.3 : w * 0.3
       },
       eSvg = svgElement({height: config.h, width: config.w}),
       eDemo = document.getElementById("demo"),
