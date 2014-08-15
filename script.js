@@ -1,72 +1,115 @@
-function svgElement(options) {
-  var s = document.createElementNS("http://www.w3.org/2000/svg", "svg"),
-    o = options || {},
-    h = o.height || 100,
-    w = o.width || 100;
+var mySvg = (function () {
+  var nsSvg = "http://www.w3.org/2000/svg";
 
-  s.setAttributeNS(null, 'width', w);
-  s.setAttributeNS(null, 'height', h);
-  return s;
-}
+  function svgElement(options) {
+    var s = document.createElementNS(nsSvg, "svg"),
+      o = options || {},
+      h = o.height || 100,
+      w = o.width || 100;
 
-function svgCircle(options) {
-  var c = document.createElementNS("http://www.w3.org/2000/svg", "circle"),
-    o = options || {},
-    cx = o.cx || 50,
-    cy = o.cy || 50,
-    r = o.r || 40;
+    s.setAttributeNS(null, 'width', w);
+    s.setAttributeNS(null, 'height', h);
+    return s;
+  }
 
-  c.setAttributeNS(null, 'cx', cx);
-  c.setAttributeNS(null, 'cy', cy);
-  c.setAttributeNS(null, 'r', r);
+  function svgCircle(options) {
+    var c = document.createElementNS(nsSvg, "circle"),
+      o = options || {},
+      cx = o.cx || 50,
+      cy = o.cy || 50,
+      r = o.r || 40;
 
-  return c;
-}
+    c.setAttributeNS(null, 'cx', cx);
+    c.setAttributeNS(null, 'cy', cy);
+    c.setAttributeNS(null, 'r', r);
 
-function svgDashedCircle(options) {
-  var c = svgCircle(options),
-    o = options || {},
-    stroke = o.stroke || '#fff';
+    return c;
+  }
 
-  c.setAttributeNS(null, 'stroke', stroke);
-  c.setAttributeNS(null, 'fill', 'transparent');
-  c.setAttributeNS(null, 'stroke-dasharray', '5,10');
-  c.setAttributeNS(null, 'stroke-width', 1);
-  c.setAttributeNS(null, 'class', 'persist');
+  function svgDashedCircle(options) {
+    var c = svgCircle(options),
+      o = options || {},
+      stroke = o.stroke || '#fff';
 
-  return c;
-}
+    c.setAttributeNS(null, 'stroke', stroke);
+    c.setAttributeNS(null, 'fill', 'transparent');
+    c.setAttributeNS(null, 'stroke-dasharray', '5,10');
+    c.setAttributeNS(null, 'stroke-width', 1);
+    c.setAttributeNS(null, 'class', 'persist');
 
-function svgPoint(options){
-  var p = svgCircle(options),
-    o = options || {},
-    r = o.r || 5;
+    return c;
+  }
 
-  p.setAttributeNS(null, 'r', r);
+  function svgPoint(options) {
+    var p = svgCircle(options),
+      o = options || {},
+      r = o.r || 5;
 
-  return p;
-}
+    p.setAttributeNS(null, 'r', r);
 
-function svgPoints(coords, options){
-  var g = document.createElementNS("http://www.w3.org/2000/svg", "g"),
-    o = options || {},
-    fill = o.fill || 'transparent';
+    return p;
+  }
 
-  g.setAttributeNS(null, 'fill', fill);
-  coords.forEach(function(c){
-    g.appendChild(svgPoint({cx: c.x, cy: c.y}));
-  });
+  function svgPoints(coords, options) {
+    var g = document.createElementNS(nsSvg, "g"),
+      o = options || {},
+      fill = o.fill || 'transparent';
 
-  return g;
-}
+    g.setAttributeNS(null, 'fill', fill);
+    coords.forEach(function (c) {
+      g.appendChild(svgPoint({cx: c.x, cy: c.y}));
+    });
 
-function getPointsOnCircumference(n, cx, cy, radius) {
-  var i,
+    return g;
+  }
+
+  function removeGroups(parent) {
+    var gNodes = parent.getElementsByTagName('g'),
+      arrNodes = [],
+      i;
+
+    for (i = 0; i < gNodes.length; i++) {
+      arrNodes.push(gNodes[i]);
+    }
+
+    arrNodes.forEach(function (node) {
+      if (node.parentNode) { node.parentNode.removeChild(node); }
+    });
+  }
+
+  return {
+    svgElement: svgElement,
+    svgCircle: svgCircle,
+    svgDashedCircle: svgDashedCircle,
+    svgPoint: svgPoint,
+    svgPoints: svgPoints,
+    removeGroups: removeGroups
+  };
+}());
+
+(function () {
+
+  var h = 500,
+    w = 500,
+    config = {
+      h: h,
+      w: w,
+      cx: w / 2,
+      cy: h / 2,
+      r1: (h < w) ? h * 0.4 : w * 0.4,
+      r2: (h < w) ? h * 0.3 : w * 0.3
+    },
+    eSvg = mySvg.svgElement({height: config.h, width: config.w}),
+    eDemo = document.getElementById("demo"),
+    initPts = document.getElementById("counter").value;
+
+  function getPointsOnCircumference(n, cx, cy, radius) {
+    var i,
       coord = {},
       coords = [],
       extAngle = 2 * Math.PI / n;
 
-  for (i = 0; i < n; i++) {
+    for (i = 0; i < n; i++) {
       coord = {
         x: cx + radius * Math.sin(extAngle * i),
         y: cy - radius * Math.cos(extAngle * i)
@@ -74,54 +117,42 @@ function getPointsOnCircumference(n, cx, cy, radius) {
       coords.push(coord);
     }
     return coords;
-}
-  
-(function() {
-
-  function refreshPoints(n, e, cfg){
-    
-    while (e.firstChild) {
-      e.removeChild(e.firstChild);
-    }
-    
-    e.appendChild(svgDashedCircle({cx: cfg.cx, cy: cfg.cy, r: cfg.r1}));
-    e.appendChild(svgPoints(getPointsOnCircumference(n, cfg.cx, cfg.cy, cfg.r1), {fill: '#fff'}));
-
-    e.appendChild(svgDashedCircle({cx: cfg.cx, cy: cfg.cy, r: cfg.r2, stroke: 'red'}));    e.appendChild(svgPoints(getPointsOnCircumference(n, cfg.cx, cfg.cy, cfg.r2), {fill: 'red'}));
   }
 
-  var h = 500,
-      w = 500,
-      config = {
-        h: h,
-        w: w,
-        cx: w / 2,
-        cy: h / 2,
-        r1: (h < w) ? h * 0.4 : w * 0.4,
-        r2: (h < w) ? h * 0.3 : w * 0.3
-      },
-      eSvg = svgElement({height: config.h, width: config.w}),
-      eDemo = document.getElementById("demo"),
-      eCounter = document.getElementById("counter"),
+  function refreshPoints(n, svg, cfg) {
+
+    mySvg.removeGroups(svg);
+    svg.appendChild(mySvg.svgPoints(getPointsOnCircumference(n, cfg.cx, cfg.cy, cfg.r1), {fill: '#fff'}));
+    //svg.appendChild(mySvg.svgPoints(getPointsOnCircumference(n, cfg.cx, cfg.cy, cfg.r2), {fill: 'red'}));
+  }
+
+  function addListeners(svg, cfg) {
+
+    var eCounter = document.getElementById("counter"),
       eCounterUp = document.getElementById("counter-up"),
       eCounterDown = document.getElementById("counter-down");
 
-  refreshPoints(eCounter.value, eSvg, config);
+    eCounter.addEventListener("change", function () { refreshPoints(eCounter.value, svg, cfg); }, false);
+
+    eCounterUp.addEventListener("click", function () {
+      if (eCounter.value < eCounter.max) {
+        eCounter.value++;
+        refreshPoints(eCounter.value, svg, cfg);
+      }
+    }, false);
+
+    eCounterDown.addEventListener("click", function () {
+      if (eCounter.value > eCounter.min) {
+        eCounter.value--;
+        refreshPoints(eCounter.value, svg, cfg);
+      }
+    }, false);
+  }
+
+  eSvg.appendChild(mySvg.svgDashedCircle({cx: config.cx, cy: config.cy, r: config.r1}));
+  eSvg.appendChild(mySvg.svgDashedCircle({cx: config.cx, cy: config.cy, r: config.r2, stroke: 'red'}));
+  refreshPoints(initPts, eSvg, config);
   eDemo.appendChild(eSvg);
+  addListeners(eSvg, config);
 
-  eCounter.addEventListener("change", function() {refreshPoints(eCounter.value, eSvg, config);}, false);
-
-  eCounterUp.addEventListener("click", function() {
-    if (eCounter.value < eCounter.max) {
-      eCounter.value++;
-      refreshPoints(eCounter.value, eSvg, config);
-    }
-  }, false);
-
-  eCounterDown.addEventListener("click", function() {
-    if (eCounter.value > eCounter.min) {
-      eCounter.value--;
-      refreshPoints(eCounter.value, eSvg, config);
-    }
-  }, false);
-}())
+}());
