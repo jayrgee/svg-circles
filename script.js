@@ -108,6 +108,15 @@ var mySvg = (function () {
       r2: Math.min(h, w) * 0.3,
       n : initPts
     },
+    palette = {
+      primary: '#fff',
+      secondary: "red",
+      background: '#4169e1'
+    },
+    settings = {
+      size: document.getElementById("size").value,
+      noPoints: document.getElementById("counter").value
+    },
     eSvg,
     demo = document.getElementById("demo");
 
@@ -127,6 +136,19 @@ var mySvg = (function () {
     return coords;
   }
 
+  function getSvgConfig(size, noPts) {
+
+    return {
+      h: size,
+      w: size,
+      cx: size / 2,
+      cy: size / 2,
+      r1: size * 0.4,
+      r2: size * 0.3,
+      n : noPts
+    };
+  }
+
   function refreshPoints(svg, cfg) {
 
     mySvg.removeGroups(svg);
@@ -136,11 +158,16 @@ var mySvg = (function () {
 
   function init(svg, cfg) {
 
+    var svgOptions = {
+      height: document.getElementById("size").value,
+      width: document.getElementById("size").value
+    };
+
     while (svg.firstChild) {
       svg.removeChild(svg.firstChild);
     }
 
-    mySvg.svgInit(svg, {height: cfg.h, width: cfg.w});
+    mySvg.svgInit(svg, svgOptions);
 
     svg.appendChild(mySvg.svgDashedCircle({cx: cfg.cx, cy: cfg.cy, r: cfg.r1}));
     svg.appendChild(mySvg.svgDashedCircle({cx: cfg.cx, cy: cfg.cy, r: cfg.r2, stroke: 'red'}));
@@ -191,8 +218,8 @@ var mySvg = (function () {
     }, false);
   }
 
-  document.getElementById("size").value = initSize;
-  document.getElementById("counter").value = initPts;
+  //document.getElementById("size").value = initSize;
+  //document.getElementById("counter").value = initPts;
 
   eSvg = mySvg.svgElement({height: initSize, width: initSize});
   addListeners(eSvg, config);
