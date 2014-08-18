@@ -151,7 +151,7 @@ var mySvg = (function () {
 
     mySvg.removeGroups(svg);
     svg.appendChild(mySvg.svgPoints(getPointsOnCircumference(cfg.n, cfg.cx, cfg.cy, cfg.r1), {r: 4, fill: '#fff'}));
-    //svg.appendChild(mySvg.svgPoints(getPointsOnCircumference(n, cfg.cx, cfg.cy, cfg.r2), {fill: 'red'}));
+    svg.appendChild(mySvg.svgPoints(getPointsOnCircumference(cfg.n, cfg.cx, cfg.cy, cfg.r2), {r: 3, fill: 'red'}));
   }
 
   function resetSvg(svg) {
@@ -165,7 +165,7 @@ var mySvg = (function () {
     mySvg.svgInit(svg, getSvgOptions());
 
     svg.appendChild(mySvg.svgDashedCircle({cx: cfg.cx, cy: cfg.cy, r: cfg.r1}));
-    //eSvg.appendChild(mySvg.svgDashedCircle({cx: cfg.cx, cy: cfg.cy, r: cfg.r2, stroke: 'red'}));
+    eSvg.appendChild(mySvg.svgDashedCircle({cx: cfg.cx, cy: cfg.cy, r: cfg.r2, stroke: 'red'}));
 
     refreshPoints(svg);
 
