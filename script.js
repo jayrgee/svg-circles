@@ -1,4 +1,7 @@
 var mySvg = (function () {
+
+  "use strict";
+
   var nsSvg = "http://www.w3.org/2000/svg";
 
   function svgInit(s, options) {
@@ -95,30 +98,19 @@ var mySvg = (function () {
 
 (function () {
 
-  var initSize = 400,
-    initPts = 4,
-    h = initSize,
-    w = initSize,
-    config = {
-      h: h,
-      w: w,
-      cx: w / 2,
-      cy: h / 2,
-      r1: Math.min(h, w) * 0.4,
-      r2: Math.min(h, w) * 0.3,
-      n : initPts
-    },
-    palette = {
+  "use strict";
+
+  var palette = {
       primary: '#fff',
       secondary: "red",
       background: '#4169e1'
     },
-    settings = {
-      size: document.getElementById("size").value,
-      noPoints: document.getElementById("counter").value
-    },
-    eSvg,
-    demo = document.getElementById("demo");
+    eSvg = null,
+    eDemo;
+
+  function cInt(n) {
+    return parseInt(n, 10);
+  }
 
   function getPointsOnCircumference(n, cx, cy, radius) {
     var i,
@@ -136,11 +128,12 @@ var mySvg = (function () {
     return coords;
   }
 
-  function getSvgConfig(size, noPts) {
+  function getPolarOptions() {
+
+    var size = document.getElementById("size").value,
+      noPts = document.getElementById("counter").value;
 
     return {
-      h: size,
-      w: size,
       cx: size / 2,
       cy: size / 2,
       r1: size * 0.4,
@@ -149,33 +142,40 @@ var mySvg = (function () {
     };
   }
 
-  function refreshPoints(svg, cfg) {
+  function getSvgOptions() {
+
+    var size = document.getElementById("size").value;
+
+    return {height: size, width: size};
+  }
+
+  function refreshPoints(svg) {
+
+    var cfg = getPolarOptions();
 
     mySvg.removeGroups(svg);
     svg.appendChild(mySvg.svgPoints(getPointsOnCircumference(cfg.n, cfg.cx, cfg.cy, cfg.r1), {fill: '#fff'}));
     //svg.appendChild(mySvg.svgPoints(getPointsOnCircumference(n, cfg.cx, cfg.cy, cfg.r2), {fill: 'red'}));
   }
 
-  function init(svg, cfg) {
+  function resetSvg(svg) {
 
-    var svgOptions = {
-      height: document.getElementById("size").value,
-      width: document.getElementById("size").value
-    };
+    var cfg = getPolarOptions();
 
     while (svg.firstChild) {
-      svg.removeChild(svg.firstChild);
+      svg.removeChild(eSvg.firstChild);
     }
 
-    mySvg.svgInit(svg, svgOptions);
+    mySvg.svgInit(svg, getSvgOptions());
 
     svg.appendChild(mySvg.svgDashedCircle({cx: cfg.cx, cy: cfg.cy, r: cfg.r1}));
-    svg.appendChild(mySvg.svgDashedCircle({cx: cfg.cx, cy: cfg.cy, r: cfg.r2, stroke: 'red'}));
+    //eSvg.appendChild(mySvg.svgDashedCircle({cx: cfg.cx, cy: cfg.cy, r: cfg.r2, stroke: 'red'}));
 
-    refreshPoints(svg, cfg);
+    refreshPoints(svg);
+
   }
 
-  function addListeners(svg, cfg) {
+  function addListeners(svg) {
 
     var eSize = document.getElementById("size"),
       eSizeUp = document.getElementById("size-up"),
@@ -184,46 +184,45 @@ var mySvg = (function () {
       eCounterUp = document.getElementById("counter-up"),
       eCounterDown = document.getElementById("counter-down");
 
-    eSize.addEventListener("change", function () {
-      var size = eSize.value;
-      cfg.h = size;
-      cfg.w = size;
-      cfg.cx = size / 2;
-      cfg.cy = size / 2;
-      cfg.r1 = size * 0.4;
-      cfg.r2 = size * 0.3;
-      cfg.n = eCounter.value;
-      init(svg, cfg);
+    eSize.addEventListener("change", function () { resetSvg(svg); }, false);
+
+    eSizeUp.addEventListener("click", function () {
+      if (cInt(eSize.value) < cInt(eSize.max)) {
+        eSize.value = cInt(eSize.value) + cInt(eSize.step);
+        resetSvg(svg);
+      }
     }, false);
 
-    eCounter.addEventListener("change", function () {
-      cfg.n = eCounter.value;
-      refreshPoints(svg, cfg);
+    eSizeDown.addEventListener("click", function () {
+      if (cInt(eSize.value) > cInt(eSize.min)) {
+        eSize.value = cInt(eSize.value) - cInt(eSize.step);
+        resetSvg(svg);
+      }
     }, false);
+
+    eCounter.addEventListener("change", function () { refreshPoints(svg); }, false);
 
     eCounterUp.addEventListener("click", function () {
       if (eCounter.value < eCounter.max) {
         eCounter.value++;
-        cfg.n = eCounter.value;
-        refreshPoints(svg, cfg);
+        refreshPoints(svg);
       }
     }, false);
 
     eCounterDown.addEventListener("click", function () {
       if (eCounter.value > eCounter.min) {
         eCounter.value--;
-        cfg.n = eCounter.value;
-        refreshPoints(svg, cfg);
+        refreshPoints(svg);
       }
     }, false);
   }
 
-  //document.getElementById("size").value = initSize;
-  //document.getElementById("counter").value = initPts;
+  eSvg = mySvg.svgElement(getSvgOptions());
+  resetSvg(eSvg);
 
-  eSvg = mySvg.svgElement({height: initSize, width: initSize});
-  addListeners(eSvg, config);
-  init(eSvg, config);
-  demo.appendChild(eSvg);
+  eDemo = document.getElementById("demo");
+  eDemo.appendChild(eSvg);
+
+  addListeners(eSvg);
 
 }());
