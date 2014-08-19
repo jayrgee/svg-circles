@@ -63,19 +63,17 @@ var mySvg = (function () {
     return g;
   }
 
-  function svgCircles2(coords, options) {
+  function svgCircles2(params, options) {
     var g = document.createElementNS("http://www.w3.org/2000/svg", "g"),
       o = options || {},
       stroke = o.stroke || '#fff',
-      fill = o.fill || 'transparent',
-      i = 0;
+      fill = o.fill || 'transparent';
 
     g.setAttributeNS(null, 'fill', fill);
     g.setAttributeNS(null, 'stroke', stroke);
 
-    coords.forEach(function (c) {
-      i++;
-      g.appendChild(svgCircle({cx: c.x, cy: c.y, r: 10 * i}));
+    params.forEach(function (p) {
+      g.appendChild(svgCircle({cx: p.coords.x, cy: p.coords.y, r: p.r}));
     });
 
     return g;

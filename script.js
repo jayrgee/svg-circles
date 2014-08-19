@@ -5,27 +5,54 @@
   "use strict";
 
   var eSvg,
-    eDemo;
+    eDemo,
+    timer1;
 
-  function convPolarToCartesion(r, a, origin) {
+  function convPolarToCartesion(radius, angle, origin) {
     origin = origin || {cx: 0, cy: 0};
 
     return {
-      x: origin.cx + r * Math.cos(a),
-      y: origin.cy - r * Math.sin(a)
+      x: origin.cx + radius * Math.cos(angle),
+      y: origin.cy - radius * Math.sin(angle)
     };
   }
 
-  function getPointsOnCircumference(n, cx, cy, radius) {
-    var i,
-      origin = {cx: cx, cy: cy},
-      coords = [],
-      extAngle = 2 * Math.PI / n;
-
+  function getRadiusList(n) {
+    var list = [],
+      i = 1;
     for (i = 0; i < n; i++) {
+      list.push(10 * (i + 1));
+    }
+    return list;
+  }
+
+  function getCoOrdsOnCircumference(radius, nmbrPts, origin) {
+    var i,
+      coords = [],
+      extAngle = 2 * Math.PI / nmbrPts;
+
+    origin = origin || {cx: 0, cy: 0};
+
+    for (i = 0; i < nmbrPts; i++) {
       coords.push(convPolarToCartesion(radius, extAngle * i, origin));
     }
     return coords;
+  }
+
+  function getParamsOnCircumference(circRadius, radiusList, origin) {
+    var i = 0,
+      params = [],
+      extAngle = 2 * Math.PI / radiusList.length;
+
+    origin = origin || {cx: 0, cy: 0};
+
+    radiusList.forEach(function (r) {
+      var coords = convPolarToCartesion(circRadius, extAngle * i, origin);
+      params.push({coords: coords, r: r});
+      i++;
+    });
+
+    return params;
   }
 
   function getPolarOptions() {
@@ -51,11 +78,14 @@
 
   function refreshPoints(svg) {
 
-    var cfg = getPolarOptions();
+    var cfg = getPolarOptions(),
+      origin = {cx: cfg.cx, cy: cfg.cy},
+      innerOptions = {r: 3, stroke: 'yellow'},
+      outerOptions = {r: 4, fill: 'red', stroke: 'yellow'};
 
     mySvg.removeGroups(svg);
-    svg.appendChild(mySvg.svgCircles(getPointsOnCircumference(cfg.n, cfg.cx, cfg.cy, cfg.r1), {r: 4, fill: 'red', stroke: 'yellow'}));
-    svg.appendChild(mySvg.svgCircles2(getPointsOnCircumference(cfg.n, cfg.cx, cfg.cy, cfg.r2), {r: 3, stroke: 'yellow'}));
+    svg.appendChild(mySvg.svgCircles(getCoOrdsOnCircumference(cfg.r1, cfg.n, origin), outerOptions));
+    svg.appendChild(mySvg.svgCircles2(getParamsOnCircumference(cfg.r2, getRadiusList(cfg.n), origin), innerOptions));
   }
 
   function resetSvg(svg) {
@@ -72,7 +102,6 @@
     svg.appendChild(mySvg.svgDashedCircle({cx: cfg.cx, cy: cfg.cy, r: cfg.r2, stroke: 'yellow'}));
 
     refreshPoints(svg);
-
   }
 
   function timer(millis_, f_) {
@@ -127,12 +156,16 @@
   function animate() {
     var counter = document.getElementById("counter");
 
-    //console.log(new Date());
+    console.log(new Date());
 
-    if (increasedValue(counter)) { refreshPoints(eSvg); }
+    if (increasedValue(counter)) {
+      refreshPoints(eSvg);
+    } else {
+      timer1.clear();
+    }
   }
 
-  function addListeners(svg) {
+  function addListeners(svg, tmr) {
 
     var eSize = document.getElementById("size"),
       eSizeUp = document.getElementById("size-up"),
@@ -140,12 +173,11 @@
       eCounter = document.getElementById("counter"),
       eCounterUp = document.getElementById("counter-up"),
       eCounterDown = document.getElementById("counter-down"),
-      eAnimate = document.getElementById("animate"),
-      t1 = timer(100, animate);
+      eAnimate = document.getElementById("animate");
 
     eAnimate.addEventListener("click", function () {
-      t1.toggle();
-      this.textContent = t1.isActive() ? 'stop' : 'play';
+      tmr.toggle();
+      this.textContent = tmr.isActive() ? 'stop' : 'play';
     }, false);
 
     eSize.addEventListener("change", function () { resetSvg(svg); }, false);
@@ -170,11 +202,13 @@
   }
 
   eSvg = mySvg.svgElement(getSvgOptions());
+
   resetSvg(eSvg);
 
   eDemo = document.getElementById("demo");
   eDemo.appendChild(eSvg);
 
-  addListeners(eSvg);
+  timer1 = timer(100, animate);
+  addListeners(eSvg, timer1);
 
 }());
