@@ -61,9 +61,11 @@
       params = [];
 
     radiusList.forEach(function (r) {
-      angle += 2 * Math.asin(r / (circRadius - r));
-      var coords = convPolarToCartesion(circRadius - r, angle, origin);
-      params.push({x: coords.x, y: coords.y, r: r});
+      if ((circRadius - 2 * r) > 0) {
+        angle += 2 * Math.asin(r / (circRadius - r));
+        var coords = convPolarToCartesion(circRadius - r, angle, origin);
+        params.push({x: coords.x, y: coords.y, r: r});
+      }
     });
 
     return params;
