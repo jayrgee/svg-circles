@@ -75,6 +75,31 @@
 
   }
 
+  function timer(millis_, f_) {
+    var id;
+
+    function clear() {
+      clearInterval(id);
+      id = 0;
+    }
+    function start() {
+      id = setInterval(f_, millis_);
+    }
+    function toggle() {
+      if (id > 0) {
+        clear();
+      } else { start(); }
+    }
+    function isActive() { return !(id === 0); }
+
+    return {
+      isActive: isActive,
+      clear: clear,
+      start: start,
+      toggle: toggle
+    };
+  }
+
   function decreasedValue(input) {
     var val = parseInt(input.value, 10),
       min = parseInt(input.min, 10),
@@ -99,6 +124,14 @@
     return false;
   }
 
+  function animate() {
+    var counter = document.getElementById("counter");
+
+    //console.log(new Date());
+
+    if (increasedValue(counter)) { refreshPoints(eSvg); }
+  }
+
   function addListeners(svg) {
 
     var eSize = document.getElementById("size"),
@@ -106,7 +139,14 @@
       eSizeDown = document.getElementById("size-down"),
       eCounter = document.getElementById("counter"),
       eCounterUp = document.getElementById("counter-up"),
-      eCounterDown = document.getElementById("counter-down");
+      eCounterDown = document.getElementById("counter-down"),
+      eAnimate = document.getElementById("animate"),
+      t1 = timer(100, animate);
+
+    eAnimate.addEventListener("click", function () {
+      t1.toggle();
+      this.textContent = t1.isActive() ? 'stop' : 'play';
+    }, false);
 
     eSize.addEventListener("change", function () { resetSvg(svg); }, false);
 

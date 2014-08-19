@@ -13,14 +13,19 @@
 
     <h1>plotting points with SVG</h1>
     <div id="controls">
-      Size:
-        <button id="size-down"> - </button>
-        <input id="size" type="number" min="100" max="1000" step="100" value="400">
-        <button id="size-up"> + </button>
-      Number of points:
-        <button id="counter-down"> - </button>
-        <input id="counter" type="number" min="0" max="99" step="1" value="5">
-        <button id="counter-up"> + </button>
+
+      <span>Size:</span>
+      <button id="size-down"> - </button>
+      <input id="size" type="number" min="100" max="1000" step="100" value="400">
+      <button id="size-up"> + </button>
+
+      <span>Number of points:</span>
+      <button id="counter-down"> - </button>
+      <input id="counter" type="number" min="0" max="99" step="1" value="5">
+      <button id="counter-up"> + </button>
+
+      <button id="animate">play</button>
+
     </div>
     <div id="demo"></div>
     <script src="mySvg.js"></script>
