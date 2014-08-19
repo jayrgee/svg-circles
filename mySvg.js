@@ -56,6 +56,7 @@ var mySvg = (function () {
 
     g.setAttributeNS(null, 'stroke', stroke);
     g.setAttributeNS(null, 'fill', fill);
+
     coords.forEach(function (c) {
       g.appendChild(svgCircle({cx: c.x, cy: c.y, r: o.r}));
     });
@@ -64,7 +65,7 @@ var mySvg = (function () {
   }
 
   function svgCircles2(params, options) {
-    var g = document.createElementNS("http://www.w3.org/2000/svg", "g"),
+    var g = document.createElementNS(nsSvg, "g"),
       o = options || {},
       stroke = o.stroke || '#fff',
       fill = o.fill || 'transparent';
@@ -73,7 +74,7 @@ var mySvg = (function () {
     g.setAttributeNS(null, 'stroke', stroke);
 
     params.forEach(function (p) {
-      g.appendChild(svgCircle({cx: p.coords.x, cy: p.coords.y, r: p.r}));
+      g.appendChild(svgCircle({cx: p.x, cy: p.y, r: p.r}));
     });
 
     return g;

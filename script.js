@@ -6,7 +6,8 @@
 
   var eSvg,
     eDemo,
-    timer1;
+    timer1,
+    timer2;
 
   function convPolarToCartesion(radius, angle, origin) {
     origin = origin || {cx: 0, cy: 0};
@@ -48,8 +49,21 @@
 
     radiusList.forEach(function (r) {
       var coords = convPolarToCartesion(circRadius - r, extAngle * i, origin);
-      params.push({coords: coords, r: r});
+      params.push({x: coords.x, y: coords.y, r: r});
       i++;
+    });
+
+    return params;
+  }
+
+  function getParamsOnCircumference2(circRadius, radiusList, origin) {
+    var angle = 0,
+      params = [];
+
+    radiusList.forEach(function (r) {
+      angle += 2 * Math.asin(r / (circRadius - r));
+      var coords = convPolarToCartesion(circRadius - r, angle, origin);
+      params.push({x: coords.x, y: coords.y, r: r});
     });
 
     return params;
@@ -81,11 +95,12 @@
     var cfg = getPolarOptions(),
       origin = {cx: cfg.cx, cy: cfg.cy},
       innerOptions = {r: 3, stroke: 'yellow'},
-      outerOptions = {r: 4, fill: 'red', stroke: 'yellow'};
+      outerOptions = {r: 4, fill: 'red', stroke: 'yellow'},
+      radiusList = getRadiusList(cfg.n);
 
     mySvg.removeGroups(svg);
     svg.appendChild(mySvg.svgCircles(getCoOrdsOnCircumference(cfg.r1, cfg.n, origin), outerOptions));
-    svg.appendChild(mySvg.svgCircles2(getParamsOnCircumference(cfg.r1, getRadiusList(cfg.n), origin), innerOptions));
+    svg.appendChild(mySvg.svgCircles2(getParamsOnCircumference2(cfg.r1, radiusList, origin), innerOptions));
   }
 
   function resetSvg(svg) {
@@ -129,43 +144,51 @@
     };
   }
 
-  function decreasedValue(input) {
+  function decreaseValue(input) {
     var val = parseInt(input.value, 10),
       min = parseInt(input.min, 10),
+      max = parseInt(input.max, 10),
       step = parseInt(input.step, 10);
 
     if (val > min) {
       input.value = val - step;
-      return true;
+    } else {
+      input.value = max;
     }
-    return false;
   }
 
-  function increasedValue(input) {
+  function increaseValue(input) {
     var val = parseInt(input.value, 10),
+      min = parseInt(input.min, 10),
       max = parseInt(input.max, 10),
       step = parseInt(input.step, 10);
 
     if (val < max) {
       input.value = val + step;
-      return true;
+    } else {
+      input.value = min;
     }
-    return false;
   }
 
-  function animate() {
+  function animateUp() {
     var counter = document.getElementById("counter");
 
     console.log(new Date());
 
-    if (increasedValue(counter)) {
-      refreshPoints(eSvg);
-    } else {
-      timer1.clear();
-    }
+    increaseValue(counter);
+    refreshPoints(eSvg);
   }
 
-  function addListeners(svg, tmr) {
+  function animateDown() {
+    var counter = document.getElementById("counter");
+
+    console.log(new Date());
+
+    decreaseValue(counter);
+    refreshPoints(eSvg);
+  }
+
+  function addListeners(svg, tmrUp, tmrDown) {
 
     var eSize = document.getElementById("size"),
       eSizeUp = document.getElementById("size-up"),
@@ -173,31 +196,41 @@
       eCounter = document.getElementById("counter"),
       eCounterUp = document.getElementById("counter-up"),
       eCounterDown = document.getElementById("counter-down"),
-      eAnimate = document.getElementById("animate");
+      eAnimate = document.getElementById("animate"),
+      eAnimateDown = document.getElementById("animate-down");
 
     eAnimate.addEventListener("click", function () {
-      tmr.toggle();
-      this.textContent = tmr.isActive() ? 'stop' : 'play';
+      tmrUp.toggle();
+      this.textContent = tmrUp.isActive() ? 'stop' : 'fwd';
+    }, false);
+
+    eAnimateDown.addEventListener("click", function () {
+      tmrDown.toggle();
+      this.textContent = tmrDown.isActive() ? 'stop' : 'rev';
     }, false);
 
     eSize.addEventListener("change", function () { resetSvg(svg); }, false);
 
     eSizeUp.addEventListener("click", function () {
-      if (increasedValue(eSize)) { resetSvg(svg); }
+      increaseValue(eSize);
+      resetSvg(svg);
     }, false);
 
     eSizeDown.addEventListener("click", function () {
-      if (decreasedValue(eSize)) { resetSvg(svg); }
+      decreaseValue(eSize);
+      resetSvg(svg);
     }, false);
 
     eCounter.addEventListener("change", function () { refreshPoints(svg); }, false);
 
     eCounterUp.addEventListener("click", function () {
-      if (increasedValue(eCounter)) { refreshPoints(svg); }
+      increaseValue(eCounter);
+      refreshPoints(svg);
     }, false);
 
     eCounterDown.addEventListener("click", function () {
-      if (decreasedValue(eCounter)) { refreshPoints(svg); }
+      decreaseValue(eCounter);
+      refreshPoints(svg);
     }, false);
   }
 
@@ -208,7 +241,8 @@
   eDemo = document.getElementById("demo");
   eDemo.appendChild(eSvg);
 
-  timer1 = timer(100, animate);
-  addListeners(eSvg, timer1);
+  timer1 = timer(100, animateUp);
+  timer2 = timer(100, animateDown);
+  addListeners(eSvg, timer1, timer2);
 
 }());
