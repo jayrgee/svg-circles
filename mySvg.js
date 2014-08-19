@@ -48,17 +48,7 @@ var mySvg = (function () {
     return c;
   }
 
-  function svgPoint(options) {
-    var p = svgCircle(options),
-      o = options || {},
-      r = o.r || 5;
-
-    p.setAttributeNS(null, 'r', r);
-
-    return p;
-  }
-
-  function svgPoints(coords, options) {
+  function svgCircles(coords, options) {
     var g = document.createElementNS(nsSvg, "g"),
       o = options || {},
       stroke = o.stroke || '#fff',
@@ -67,13 +57,13 @@ var mySvg = (function () {
     g.setAttributeNS(null, 'stroke', stroke);
     g.setAttributeNS(null, 'fill', fill);
     coords.forEach(function (c) {
-      g.appendChild(svgPoint({cx: c.x, cy: c.y, r: o.r}));
+      g.appendChild(svgCircle({cx: c.x, cy: c.y, r: o.r}));
     });
 
     return g;
   }
 
-  function svgPoints2(coords, options) {
+  function svgCircles2(coords, options) {
     var g = document.createElementNS("http://www.w3.org/2000/svg", "g"),
       o = options || {},
       stroke = o.stroke || '#fff',
@@ -85,7 +75,7 @@ var mySvg = (function () {
 
     coords.forEach(function (c) {
       i++;
-      g.appendChild(svgPoint({cx: c.x, cy: c.y, r: 10 * i}));
+      g.appendChild(svgCircle({cx: c.x, cy: c.y, r: 10 * i}));
     });
 
     return g;
@@ -110,9 +100,8 @@ var mySvg = (function () {
     svgElement: svgElement,
     svgCircle: svgCircle,
     svgDashedCircle: svgDashedCircle,
-    svgPoint: svgPoint,
-    svgPoints: svgPoints,
-    svgPoints2: svgPoints2,
+    svgCircles: svgCircles,
+    svgCircles2: svgCircles2,
     removeGroups: removeGroups
   };
 }());

@@ -4,26 +4,26 @@
 
   "use strict";
 
-  var palette = {
-      primary: '#fff',
-      secondary: "red",
-      background: '#4169e1'
-    },
-    eSvg = null,
+  var eSvg,
     eDemo;
+
+  function convPolarToCartesion(r, a, origin) {
+    origin = origin || {cx: 0, cy: 0};
+
+    return {
+      x: origin.cx + r * Math.cos(a),
+      y: origin.cy - r * Math.sin(a)
+    };
+  }
 
   function getPointsOnCircumference(n, cx, cy, radius) {
     var i,
-      coord = {},
+      origin = {cx: cx, cy: cy},
       coords = [],
       extAngle = 2 * Math.PI / n;
 
     for (i = 0; i < n; i++) {
-      coord = {
-        x: cx + radius * Math.sin(extAngle * i),
-        y: cy - radius * Math.cos(extAngle * i)
-      };
-      coords.push(coord);
+      coords.push(convPolarToCartesion(radius, extAngle * i, origin));
     }
     return coords;
   }
@@ -54,8 +54,8 @@
     var cfg = getPolarOptions();
 
     mySvg.removeGroups(svg);
-    svg.appendChild(mySvg.svgPoints(getPointsOnCircumference(cfg.n, cfg.cx, cfg.cy, cfg.r1), {r: 4, fill: 'red', stroke: 'yellow'}));
-    svg.appendChild(mySvg.svgPoints2(getPointsOnCircumference(cfg.n, cfg.cx, cfg.cy, cfg.r2), {r: 3, stroke: 'yellow'}));
+    svg.appendChild(mySvg.svgCircles(getPointsOnCircumference(cfg.n, cfg.cx, cfg.cy, cfg.r1), {r: 4, fill: 'red', stroke: 'yellow'}));
+    svg.appendChild(mySvg.svgCircles2(getPointsOnCircumference(cfg.n, cfg.cx, cfg.cy, cfg.r2), {r: 3, stroke: 'yellow'}));
   }
 
   function resetSvg(svg) {
