@@ -21,7 +21,7 @@
     var list = [],
       i = 1;
     for (i = 0; i < n; i++) {
-      list.push(10 * (i + 1));
+      list.push(10 * (1 + (i * 0.25)));
     }
     return list;
   }
