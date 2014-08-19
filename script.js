@@ -47,7 +47,7 @@
     origin = origin || {cx: 0, cy: 0};
 
     radiusList.forEach(function (r) {
-      var coords = convPolarToCartesion(circRadius, extAngle * i, origin);
+      var coords = convPolarToCartesion(circRadius - r, extAngle * i, origin);
       params.push({coords: coords, r: r});
       i++;
     });
@@ -85,7 +85,7 @@
 
     mySvg.removeGroups(svg);
     svg.appendChild(mySvg.svgCircles(getCoOrdsOnCircumference(cfg.r1, cfg.n, origin), outerOptions));
-    svg.appendChild(mySvg.svgCircles2(getParamsOnCircumference(cfg.r2, getRadiusList(cfg.n), origin), innerOptions));
+    svg.appendChild(mySvg.svgCircles2(getParamsOnCircumference(cfg.r1, getRadiusList(cfg.n), origin), innerOptions));
   }
 
   function resetSvg(svg) {
@@ -99,7 +99,7 @@
     mySvg.svgInit(svg, getSvgOptions());
 
     svg.appendChild(mySvg.svgDashedCircle({cx: cfg.cx, cy: cfg.cy, r: cfg.r1, stroke: 'yellow'}));
-    svg.appendChild(mySvg.svgDashedCircle({cx: cfg.cx, cy: cfg.cy, r: cfg.r2, stroke: 'yellow'}));
+    //svg.appendChild(mySvg.svgDashedCircle({cx: cfg.cx, cy: cfg.cy, r: cfg.r2, stroke: 'yellow'}));
 
     refreshPoints(svg);
   }
