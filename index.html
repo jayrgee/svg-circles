@@ -11,30 +11,56 @@
 
 <body>
 
-    <div id="controls">
+    <div class="row">
 
-      <span>Size:</span>
-      <button id="size-down"> - </button>
-      <input id="size" type="number" min="100" max="1000" step="100" value="400">
-      <button id="size-up"> + </button>
+      <div class="input">
+        <span>Size:</span>
+        <button id="size-down"> - </button>
+        <input id="size" type="number" min="100" max="1000" step="100" value="500">
+        <button id="size-up"> + </button>
+      </div>
 
-      <span>Number of points:</span>
-      <button id="counter-down"> - </button>
-      <input id="counter" type="number" min="0" max="99" step="1" value="5">
-      <button id="counter-up"> + </button>
-
-      <span>Spacing</span>
-      <input type="radio" id="spacing-even" name="spacing" value="even" checked>
-      <label for="spacing-even">Even</label>
-      <input type="radio" id="spacing-none" name="spacing" value="none">
-      <label for="spacing-none">None</label>
-
-      <span>Play:</span>
-      <button id="animate">fwd</button>
-      <button id="animate-down">rev</button>
+      <div class="input">
+        <span>Number:</span>
+        <button id="counter-down"> - </button>
+        <input id="counter" type="number" min="0" max="39" step="1" value="1">
+        <button id="counter-up"> + </button>
+      </div>
 
     </div>
-    <div id="demo"></div>
+
+    <div class="row">
+
+      <div class="input">
+        <span>Spacing:</span>
+        <input type="radio" id="spacing-even" name="spacing" value="even" checked>
+        <label for="spacing-even">Even</label>
+        <input type="radio" id="spacing-none" name="spacing" value="none">
+        <label for="spacing-none">None</label>
+      </div>
+
+      <div class="input">
+        <span>Radius:</span>
+        <input type="radio" id="radius-fixed" name="radius" value="fixed" checked>
+        <label for="radius-fixed">Fixed</label>
+        <input type="radio" id="radius-vrbl" name="radius" value="variable">
+        <label for="radius-vrbl">Variable</label>
+      </div>
+
+    </div>
+
+    <div class="row">
+
+      <div class="input play">
+        <span>Play:</span>
+        <button id="animate-down">reverse</button>
+        <button id="animate-up">forward</button>
+      </div>
+
+    </div>
+
+    <div class="row" id="demo"></div>
+
     <script src="mySvg.js"></script>
     <script src="script.js"></script>
 

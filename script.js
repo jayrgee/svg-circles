@@ -18,11 +18,18 @@
     };
   }
 
-  function getRadiusList(n) {
-    var list = [],
+  function getRadiusList(n, size) {
+    var s = size || 0,
+      list = [],
       i = 1;
-    for (i = 0; i < n; i++) {
-      list.push(10 * (1 + (i * 0.25)));
+    if (s === 0) {
+      for (i = 0; i < n; i++) {
+        list.push(10 * (1 + (i * 0.25)));
+      }
+    } else {
+      for (i = 0; i < n; i++) {
+        list.push(s);
+      }
     }
     return list;
   }
@@ -40,23 +47,7 @@
     return coords;
   }
 
-  function getParamsOnCircumference(circRadius, radiusList, origin) {
-    var i = 0,
-      params = [],
-      extAngle = 2 * Math.PI / radiusList.length;
-
-    origin = origin || {cx: 0, cy: 0};
-
-    radiusList.forEach(function (r) {
-      var coords = convPolarToCartesion(circRadius - r, extAngle * i, origin);
-      params.push({x: coords.x, y: coords.y, r: r});
-      i++;
-    });
-
-    return params;
-  }
-
-  function getParamsOnCircumference2(circRadius, radiusList, origin, spread) {
+  function getParamsOnCircumference(circRadius, radiusList, origin, spread) {
     var currAngle = 0,
       btwnAngle = 0,
       prevAngle = 0,
@@ -127,6 +118,20 @@
     return {height: size, width: size};
   }
 
+  function getRadiusSize() {
+    var radios = document.getElementsByName('radius'),
+      result = 'fixed',
+      i;
+
+    for (i = 0; i < radios.length; i++) {
+      if (radios[i].checked) {
+        result = radios[i].value;
+        break;
+      }
+    }
+    return result === 'fixed' ? 25 : 0;
+  }
+
   function getSpacing() {
     var radios = document.getElementsByName('spacing'),
       result = 'even',
@@ -147,11 +152,13 @@
       origin = {cx: cfg.cx, cy: cfg.cy},
       innerOptions = {r: 3, stroke: 'yellow'},
       outerOptions = {r: 4, fill: 'red', stroke: 'yellow'},
-      radiusList = getRadiusList(cfg.n);
+      radiusList = getRadiusList(cfg.n, getRadiusSize()),
+      params = getParamsOnCircumference(cfg.r1, radiusList, origin, getSpacing()),
+      coords = getCoOrdsOnCircumference(cfg.r1, params.length, origin);
 
     mySvg.removeGroups(svg);
-    svg.appendChild(mySvg.svgCircles(getCoOrdsOnCircumference(cfg.r1, cfg.n, origin), outerOptions));
-    svg.appendChild(mySvg.svgCircles2(getParamsOnCircumference2(cfg.r1, radiusList, origin, getSpacing()), innerOptions));
+    svg.appendChild(mySvg.svgCircles(coords, outerOptions));
+    svg.appendChild(mySvg.svgCircles2(params, innerOptions));
   }
 
   function resetSvg(svg) {
@@ -249,8 +256,20 @@
       eCounterDown = document.getElementById("counter-down"),
       eSpacingEven = document.getElementById("spacing-even"),
       eSpacingNone = document.getElementById("spacing-none"),
-      eAnimate = document.getElementById("animate"),
+
+      eRadiusFixed = document.getElementById("radius-fixed"),
+      eRadiusVariable = document.getElementById("radius-vrbl"),
+
+      eAnimateUp = document.getElementById("animate-up"),
       eAnimateDown = document.getElementById("animate-down");
+
+    eRadiusFixed.addEventListener("change", function () {
+      refreshPoints(svg);
+    }, false);
+
+    eRadiusVariable.addEventListener("change", function () {
+      refreshPoints(svg);
+    }, false);
 
     eSpacingEven.addEventListener("change", function () {
       refreshPoints(svg);
@@ -260,14 +279,16 @@
       refreshPoints(svg);
     }, false);
 
-    eAnimate.addEventListener("click", function () {
+    eAnimateUp.addEventListener("click", function () {
       tmrUp.toggle();
-      this.textContent = tmrUp.isActive() ? 'stop' : 'fwd';
+      eAnimateUp.textContent = tmrUp.isActive() ? 'stop' : 'forward';
+      eAnimateDown.disabled = tmrUp.isActive();
     }, false);
 
     eAnimateDown.addEventListener("click", function () {
       tmrDown.toggle();
-      this.textContent = tmrDown.isActive() ? 'stop' : 'rev';
+      eAnimateDown.textContent = tmrDown.isActive() ? 'stop' : 'reverse';
+      eAnimateUp.disabled = tmrDown.isActive();
     }, false);
 
     eSize.addEventListener("change", function () { resetSvg(svg); }, false);
