@@ -58,15 +58,32 @@
 
   function getParamsOnCircumference2(circRadius, radiusList, origin) {
     var angle = 0,
-      params = [];
+      prevAngle = 0,
+      incrParams = [],
+      params = [],
+      i,
+      r,
+      p,
+      coords,
+      incrAngle;
 
-    radiusList.forEach(function (r) {
+    for (i = 0; i < radiusList.length; i++) {
+      r = radiusList[i];
       if ((circRadius - 2 * r) > 0) {
-        angle += 2 * Math.asin(r / (circRadius - r));
-        var coords = convPolarToCartesion(circRadius - r, angle, origin);
-        params.push({x: coords.x, y: coords.y, r: r});
-      }
-    });
+        incrParams.push({radius: r, incrAngle: Math.asin(r / (circRadius - r))});
+      } else { break; }
+    }
+
+    for (i = 0; i < incrParams.length; i++) {
+      p = incrParams[i];
+      incrAngle = p.incrAngle;
+
+      if (i > 0) { angle += prevAngle + incrAngle; }
+      coords = convPolarToCartesion(circRadius - p.radius, angle, origin);
+      params.push({x: coords.x, y: coords.y, r: p.radius});
+
+      prevAngle = incrAngle;
+    }
 
     return params;
   }
