@@ -56,8 +56,9 @@
     return params;
   }
 
-  function getParamsOnCircumference2(circRadius, radiusList, origin) {
-    var angle = 0,
+  function getParamsOnCircumference2(circRadius, radiusList, origin, spread) {
+    var currAngle = 0,
+      btwnAngle = 0,
       prevAngle = 0,
       incrParams = [],
       params = [],
@@ -67,6 +68,8 @@
       coords,
       incrAngle;
 
+    spread = spread || 'even';
+
     for (i = 0; i < radiusList.length; i++) {
       r = radiusList[i];
       if ((circRadius - 2 * r) > 0) {
@@ -74,12 +77,27 @@
       } else { break; }
     }
 
+    if (spread === 'even') {
+      btwnAngle = (function getAngleBetweenCircles(params) {
+        var result = 0,
+          totAngle = 0;
+
+        if (params.length > 0) {
+          params.forEach(function (p) {
+            totAngle += 2 * p.incrAngle;
+          });
+          result = (2 * Math.PI - totAngle) / params.length;
+        }
+        return result;
+      }(incrParams));
+    }
+
     for (i = 0; i < incrParams.length; i++) {
       p = incrParams[i];
       incrAngle = p.incrAngle;
 
-      if (i > 0) { angle += prevAngle + incrAngle; }
-      coords = convPolarToCartesion(circRadius - p.radius, angle, origin);
+      if (i > 0) { currAngle += prevAngle + btwnAngle + incrAngle; }
+      coords = convPolarToCartesion(circRadius - p.radius, currAngle, origin);
       params.push({x: coords.x, y: coords.y, r: p.radius});
 
       prevAngle = incrAngle;
@@ -109,6 +127,20 @@
     return {height: size, width: size};
   }
 
+  function getSpacing() {
+    var radios = document.getElementsByName('spacing'),
+      result = 'even',
+      i;
+
+    for (i = 0; i < radios.length; i++) {
+      if (radios[i].checked) {
+        result = radios[i].value;
+        break;
+      }
+    }
+    return result;
+  }
+
   function refreshPoints(svg) {
 
     var cfg = getPolarOptions(),
@@ -119,7 +151,7 @@
 
     mySvg.removeGroups(svg);
     svg.appendChild(mySvg.svgCircles(getCoOrdsOnCircumference(cfg.r1, cfg.n, origin), outerOptions));
-    svg.appendChild(mySvg.svgCircles2(getParamsOnCircumference2(cfg.r1, radiusList, origin), innerOptions));
+    svg.appendChild(mySvg.svgCircles2(getParamsOnCircumference2(cfg.r1, radiusList, origin, getSpacing()), innerOptions));
   }
 
   function resetSvg(svg) {
@@ -215,8 +247,18 @@
       eCounter = document.getElementById("counter"),
       eCounterUp = document.getElementById("counter-up"),
       eCounterDown = document.getElementById("counter-down"),
+      eSpacingEven = document.getElementById("spacing-even"),
+      eSpacingNone = document.getElementById("spacing-none"),
       eAnimate = document.getElementById("animate"),
       eAnimateDown = document.getElementById("animate-down");
+
+    eSpacingEven.addEventListener("change", function () {
+      refreshPoints(svg);
+    }, false);
+
+    eSpacingNone.addEventListener("change", function () {
+      refreshPoints(svg);
+    }, false);
 
     eAnimate.addEventListener("click", function () {
       tmrUp.toggle();
